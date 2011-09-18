@@ -1,0 +1,77 @@
+wpfinger - turn ship upside down  
+============================================================
+wpfinger is a tool that can analyze the Wordpress plugin repository
+and generate signatures based on diffs between each version of the 
+plugin. wpfinger can then use these signatures to scan a website 
+running Wordpress, and detect the presence of any plugin in the 
+repository as well as infer the installed version.
+
+wpfinger is written in Python, and expects Python 2.5 or above. 
+To use the repository checkout feature, you must also have subversion
+installed.
+
+This tool is only intended for legal uses. I am not responsible
+for any abuse of this tool. 
+
+Usage
+===========================================================
+Usage: wpfinger.py [options] [WORDPRESS_URL]
+
+Options:
+  -h, --help            show this help message and exit
+  -g, --generate-sigs   Update repo, crawl stats, and generate signatures.
+  -q, --quick-generate  Only perform signature generation (no stats/repo
+                        updates).
+  -r REPO, --repo=REPO  Specify the path to the checked out repository.
+  -p PLUGIN, --plugin=PLUGIN
+                        Specify the plugin to scan/generate signature for.
+  -n NUMBER, --number=NUMBER
+                        Specify the number of plugins to scan/generate
+                        signatures for.
+  -t THREADS, --threads=THREADS
+                        Specify the number of threads to scan with.
+  -d, --disable-dirmatch
+                        Disables the use of directories as last resort. Useful
+                        as a way to speed things up, and possibly deal with
+                        difficult servers.
+  -s SIGNATURE_FILE, --signature-file=SIGNATURE_FILE
+                        Specify the signature file to use (ex. sigs.py)
+
+wpfinger has two modes: signature generation mode and Wordpress
+scanning mode. You can technically generate signatures and scan
+in the same command, but you probably don't want to do this.
+
+Signature generation works by taking a checked out repository and
+plugin statistics, and going (in order of popularity) through the
+repository and building signatures. The signatures are makeshift
+binary search trees that rely on diffs between each tag
+and the trunk that can be checked remotely to make decisions. When
+done, the signatures are saved to a Python file.
+
+Scanning works by taking the previously created signatures and
+using them to test first for the presence of each plugin, and then
+to walk down the tree to find what version is installed.
+
+Signatures are provided by default, but they may not be the most
+up-to-date ones. I'll try to generate them once a week, but if I
+don't, well, you have the tools to do so yourself.
+
+HISTORY
+=========================================================
+- Initial release
+
+TODO
+=========================================================
+- Improve the code so peoples' eyes stop bleeding
+- Improve signature generation speed (probably with filecmp)
+- Improve detection rates and lower required number of requests
+
+Copyright
+=========================================================
+Copyright 2011, Ben Schmidt
+Released under the GPL v3
+
+Notes
+=========================================================
+Happy hacking! Please send any bugs to:
+supernothing AT spareclockcycles DOT org
