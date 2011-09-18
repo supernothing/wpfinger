@@ -1,3 +1,21 @@
+'''
+This is an alpha implementation of a Wordpress plugin fingerprinting toolkit.
+It uses makeshift binary search trees created by diffing SVN repository info
+to determine not only if a plugin is installed
+
+Copyright 2011, Ben Schmidt
+Released under the GPL v3
+'''
+
+__author__ = "Ben Schmidt"
+__copyright__ = "Copyright 2011, Ben Schmidt"
+__credits__ = ["Ben Schmidt"]
+__license__ = "GPL v3"
+__version__ = "0.1"
+__maintainer__ = "Ben Schmidt"
+__email__ = "supernothing@spareclockcycles.org"
+__status__ = "alpha"
+
 import threading
 
 class LockedIterator(object):
