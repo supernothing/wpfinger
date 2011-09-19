@@ -112,7 +112,7 @@ def generate_fingerprint(path):
     sigs = build_detection(vers,filelists,hashes)
     if len(identify) == 0:
         #assumes that 3 files should cover bases
-        identify = [sigs[0].split(":")[0],sigs[1][0].split(":")[0],
+        ident = [sigs[0].split(":")[0],sigs[1][0].split(":")[0],
                     sigs[2][0].split(":")[0]]
     else:
         ident = ""
@@ -122,7 +122,7 @@ def generate_fingerprint(path):
                 ident = s
                 break
         if ident == "":
-            ident = identify[0]
+            ident = [identify[0]]
     print (ident,sigs)
     return (ident,sigs)
 
@@ -135,7 +135,8 @@ def fingerprint_plugins(base="wordpress_plugins",pstats="plugin_stats.txt",limit
     while i < limit:
         try:
             sigs[plugins[i]] = generate_fingerprint(os.path.join(base,plugins[i]))
-        except:
+        except Exception, e:
+            print str(e)
             print "Failed to fingerprint %s" % plugins[i]
         i+=1
     return sigs
