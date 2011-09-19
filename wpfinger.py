@@ -155,12 +155,13 @@ def finger(cur,kw):
     default_code = kw['default_code']
     default_data = kw['default_data']
     disable_dirmatch = kw['disable_dirmatch']
+    wpc = kw['wpc']
     if cur not in sigs:
         return
     if base.endswith("/"):
-        base += "wp-content/plugins/"
+        base += wpc+"/plugins/"
     else: 
-        base += "/wp-content/plugins/"
+        base += wpc+"/plugins/"
     success = False
     for path in sigs[cur][0]:
         if path.endswith("index.php"):
@@ -200,6 +201,7 @@ def finger(cur,kw):
     #and find which version of the plugin is installed.
     s = sigs[cur][1]
     while 1:
+        #print s
         match = s[0].split(":")
         if match[-1] == "":
             break
@@ -225,9 +227,9 @@ def finger(cur,kw):
     else:
         print "%s: %s - %s" % (cur,s[1],s[2])
 
-def finger_init(target):
+def finger_init(target,wpc):
     kw = {}
-    res = do_request(target.netloc,target.path+"wp-content/plugins/"+
+    res = do_request(target.netloc,target.path+wpc+"/plugins/"+
             "".join([random.choice(string.lowercase) for j in range(0,10)]))
     if res == None:
         print "Couldn't connect to server. Exiting..."
@@ -241,7 +243,7 @@ def finger_init(target):
         #Site is being tricky, let's see if we can match error page with difflib
         default_data = res.read()
         con = httplib.HTTPConnection(target.netloc)
-        con.request("GET",target.path+"wp-content/plugins/"+
+        con.request("GET",target.path+wpc+"/plugins/"+
                 "".join([random.choice(string.lowercase) for j in range(0,10)]))
         res = con.getresponse()
         if difflib.get_close_matches(default_data,[res.read()]):
@@ -252,16 +254,17 @@ def finger_init(target):
             'target':target,
             'default_code':default_code,
             'default_data':default_data,
+            'wpc':wpc
             }
 def scan_wordpress(target,pstats="plugin_stats.txt",limit=-1,threads=15,
-        disable_dirmatch=False):
+        disable_dirmatch=False,wpc='wp-content'):
     '''
         Starts our scanning threads and waits for results.
     '''
     
     target = urlparse(target)
     
-    kw = finger_init(target)
+    kw = finger_init(target,wpc)
     kw['disable_dirmatch'] = disable_dirmatch
     plugins = [p.strip().split()[1] for p in open(pstats).readlines()]
     
@@ -297,15 +300,17 @@ if __name__=="__main__":
  to speed things up, and possibly deal with difficult servers.")
     parser.add_option("-s","--signature-file",type=str,default="plugin_signatures.py",
             help="Specify the signature file to use (ex. sigs.py)")
+    parser.add_option("-w","--wp-content-loc",type=str,default="wp-content",
+            help="Specify the the location of Wordpress content.")
 
     (opts,args) = parser.parse_args()
     if opts.generate_sigs or opts.quick_generate:
         if not opts.quick_generate:
             from grab_repos import checkout_plugins
             from get_download_counts import get_plugin_stats
-            checkout_plugins(opts.repo)
+            checkout_plugins(opts.repo,opts.threads)
             
-            res = get_plugin_stats()
+            res = get_plugin_stats(threads=opts.threads)
             res.sort(reverse=True)
             f = open("plugin_stats.txt","w")
             for p in res:
@@ -318,9 +323,10 @@ if __name__=="__main__":
     if len(args) == 1:
         execfile(opts.signature_file)
         if opts.plugin == "":
+            print "initiating scan..."
             scan_wordpress(args[0],limit=opts.number,threads=opts.threads,
-                    disable_dirmatch=opts.disable_dirmatch)
+                    disable_dirmatch=opts.disable_dirmatch,wpc=opts.wp_content_loc)
         else:
-            kw = finger_init(urlparse(args[0]))
+            kw = finger_init(urlparse(args[0]),opts.wp_content_loc)
             kw['disable_dirmatch'] = opts.disable_dirmatch
             finger(opts.plugin,kw)

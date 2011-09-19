@@ -23,9 +23,21 @@ import urllib2
 from parallel import get_threads
 from repo_names import get_names
 
+def do_request(url,retries=5):
+    i = 0
+    while i < retries:
+        try:
+            return  urllib2.urlopen(url)
+        except:
+            i+=1
+            continue
+    return None
+
 def f_plugin(cur,kw):
     url = "http://wordpress.org/extend/plugins/%s/" % cur
-    res = urllib2.urlopen(url)
+    res = do_request(url)
+    if res == None:
+        print "Connection to server failed on plugin %s, stats might be bad." % cur
     if res.geturl() == url:
         data = res.read()
         start = data.find("Downloads:</strong>")+len("Downloads:</strong>")
@@ -39,7 +51,9 @@ def f_plugin(cur,kw):
 
 def f_theme(cur,kw):
     url = "http://wordpress.org/extend/themes/%s/stats/" % cur
-    res = urllib2.urlopen(url)
+    res = do_request(url)
+    if res == None:
+        print "Connection to server failed on plugin %s, stats might be bad." % cur
     if res.geturl() == url:
         data = res.read()
         start = data.find("td",data.find('<th scope="row">All Time</th>'))+len("<td>")-1
@@ -51,15 +65,15 @@ def f_theme(cur,kw):
         else:
             print "Finding stats for %s failed, probably no longer exists." % cur
 
-def get_theme_stats():
+def get_theme_stats(threads=20):
     gen = iter(get_names("http://themes.svn.wordpress.org"))
-    threads,out = get_threads(gen,f_theme,20)
+    threads,out = get_threads(gen,f_theme,threads)
     for t in threads:
         t.join()
     return out
-def get_plugin_stats():
+def get_plugin_stats(threads=20):
     gen = iter(get_names("http://plugins.svn.wordpress.org"))
-    threads,out = get_threads(gen,f_plugin,20)
+    threads,out = get_threads(gen,f_plugin,threads)
     for t in threads:
         t.join()
     return out

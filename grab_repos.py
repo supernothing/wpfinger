@@ -36,18 +36,18 @@ def f(cur,kw):
         print "Error occured. Exiting thread..."
         sys.exit(0)
 
-def checkout_repos(url,base):
+def checkout_repos(url,base,threads=20):
     gen = iter(get_names(url))
-    threads,out = get_threads(gen,f,20,
+    threads,out = get_threads(gen,f,threads,
             url=url,base=base)
     for t in threads:
         t.join()
     print "done"
 
-def checkout_themes(base):
+def checkout_themes(base,threads=20):
     return checkout_repos("http://themes.svn.wordpress.org/",base)
 
-def checkout_plugins(base):
+def checkout_plugins(base,threads=20):
     return checkout_repos("http://plugins.svn.wordpress.org/",base)
 
 if __name__=="__main__":
