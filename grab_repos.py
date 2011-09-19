@@ -38,7 +38,8 @@ def f(cur,kw):
         if res == 0:
             break
         i+=1
-        time.sleep(1)
+        time.sleep(5)
+        print "Error occurred downloading repo. Waiting 5 seconds..."
     if res != 0:
         print "Error occured. Exiting thread..."
         sys.exit(0)

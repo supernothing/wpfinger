@@ -9,7 +9,7 @@ def do_request(url,retries=5):
             return  urllib2.urlopen(url)
         except:
             i+=1
-            time.sleep(1)
+            time.sleep(5)
             continue
     return None
 
