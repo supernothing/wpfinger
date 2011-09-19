@@ -115,9 +115,16 @@ def generate_fingerprint(path):
         identify = [sigs[0].split(":")[0],sigs[1][0].split(":")[0],
                     sigs[2][0].split(":")[0]]
     else:
-        identify = [identify[0]]
-    print (identify,sigs)
-    return (identify,sigs)
+        ident = ""
+        #prefer files that are unlikely to be blocked
+        for s in identify:
+            if s.split(".")[-1] in ['css','jpg','jpeg','png','gif','js']:
+                ident = s
+                break
+        if ident == "":
+            ident = identify[0]
+    print (ident,sigs)
+    return (ident,sigs)
 
 def fingerprint_plugins(base="wordpress_plugins",pstats="plugin_stats.txt",limit=-1):
     plugins = [p.strip().split()[1] for p in open("plugin_stats.txt").readlines()]
@@ -201,7 +208,6 @@ def finger(cur,kw):
     #and find which version of the plugin is installed.
     s = sigs[cur][1]
     while 1:
-        #print s
         match = s[0].split(":")
         if match[-1] == "":
             break
@@ -323,7 +329,6 @@ if __name__=="__main__":
     if len(args) == 1:
         execfile(opts.signature_file)
         if opts.plugin == "":
-            print "initiating scan..."
             scan_wordpress(args[0],limit=opts.number,threads=opts.threads,
                     disable_dirmatch=opts.disable_dirmatch,wpc=opts.wp_content_loc)
         else:
