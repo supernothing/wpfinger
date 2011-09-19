@@ -32,7 +32,7 @@ from parallel import get_threads
 
 hashable_filetypes = ["css","js","swf","xml","htm","html","png","jpg","jpeg","gif","txt"]
 presence_filetypes = ["css","js","swf","xml","htm","html","png","jpg","jpeg","gif","txt","php","mo","po"]
-
+usually_allowed = ['css','jpg','jpeg','png','gif','js']
 def build_detection(vers,fl,hs):
     '''
         This uses file presence and then content to build a makeshift
@@ -111,15 +111,26 @@ def generate_fingerprint(path):
     vers.sort()
     sigs = build_detection(vers,filelists,hashes)
     if len(identify) == 0:
-        #assumes that 3 files should cover bases
-        ident = [sigs[0].split(":")[0],sigs[1][0].split(":")[0],
-                    sigs[2][0].split(":")[0]]
+        #takes a file from each version we know about and uses that
+        ident = []
+        for fl in filelists.values():
+            temp = list(fl)
+            success = False
+            for f in fl:
+                if f.split(".")[-1] in usually_allowed:
+                    ident.append(f)
+                    success = True
+                    break
+            if success:
+                continue
+            ident.append(temp[0])
+        ident = list(set(ident))
     else:
         ident = ""
         #prefer files that are unlikely to be blocked
         for s in identify:
-            if s.split(".")[-1] in ['css','jpg','jpeg','png','gif','js']:
-                ident = s
+            if s.split(".")[-1] in usually_allowed:
+                ident = [s]
                 break
         if ident == "":
             ident = [identify[0]]
