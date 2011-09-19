@@ -1,7 +1,17 @@
-#!/usr/bin/env python
-
 import urllib2
 import sys
+import time
+
+def do_request(url,retries=5):
+    i = 0
+    while i < retries:
+        try:
+            return  urllib2.urlopen(url)
+        except:
+            i+=1
+            time.sleep(1)
+            continue
+    return None
 
 def get_names(url):
     data = urllib2.urlopen(url).read()

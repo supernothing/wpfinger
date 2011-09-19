@@ -20,6 +20,7 @@ __status__ = "alpha"
 import os
 import sys
 import thread
+import time
 from pipes import quote
 
 from theme_repos import data
@@ -37,6 +38,7 @@ def f(cur,kw):
         if res == 0:
             break
         i+=1
+        time.sleep(1)
     if res != 0:
         print "Error occured. Exiting thread..."
         sys.exit(0)

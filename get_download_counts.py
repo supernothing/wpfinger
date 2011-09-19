@@ -22,6 +22,7 @@ import urllib2
 
 from parallel import get_threads
 from repo_names import get_names
+import time
 
 def do_request(url,retries=5):
     i = 0
@@ -30,6 +31,7 @@ def do_request(url,retries=5):
             return  urllib2.urlopen(url)
         except:
             i+=1
+            time.sleep(1)
             continue
     return None
 
