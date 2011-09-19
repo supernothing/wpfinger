@@ -30,8 +30,13 @@ def f(cur,kw):
     '''
         Does checkout. Yes, shouldn't use os.system. Next version.
     '''
-    res = os.system("svn co %s %s" % (quote(kw['url'] + cur),
+    i = 0
+    while i < 5:
+        res = os.system("svn co %s %s" % (quote(kw['url'] + cur),
                 quote(os.path.join(kw['base'],cur))))
+        if res == 0:
+            break
+        i+=1
     if res != 0:
         print "Error occured. Exiting thread..."
         sys.exit(0)
