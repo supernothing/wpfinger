@@ -106,7 +106,10 @@ def generate_fingerprint(path):
     for ver in filelists:
         filelists[ver] = set(filelists[ver])
         hashes[ver] = set(hashes[ver])
-    identify = list(reduce(lambda x,y: x&y,filelists.values()))
+    if len(filelists.values()) != 0:
+        identify = list(reduce(lambda x,y: x&y,filelists.values()))
+    else:
+        identify = []
     vers = filelists.keys()
     vers.sort()
     sigs = build_detection(vers,filelists,hashes)
@@ -123,7 +126,8 @@ def generate_fingerprint(path):
                     break
             if success:
                 continue
-            ident.append(temp[0])
+            if len(temp) > 0:
+                ident.append(temp[0])
         ident = list(set(ident))
     else:
         ident = ""
@@ -242,6 +246,8 @@ def finger(cur,kw):
         print "%s: %s" % (cur,s[1])
     elif s[0] != '':
         print "%s: %s" % (cur,s)
+    elif s[0] == "" and s[1] == "":
+        print "%s: unknown version" % cur
     else:
         print "%s: %s - %s" % (cur,s[1],s[2])
 
